@@ -17,7 +17,7 @@ namespace music_manager_starter.Server.Controllers
             _context = context;
         }
 
-  
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Song>>> GetSongs()
         {
@@ -34,6 +34,21 @@ namespace music_manager_starter.Server.Controllers
 
 
             _context.Songs.Add(song);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpDelete("{song_id}")]
+        public async Task<ActionResult<Song>> RemoveSong(Guid song_id) {
+            var song = await _context.Songs.FindAsync(song_id);
+            if (song == null)
+            {
+                return BadRequest("Song cannot be null.");
+            }
+
+
+            _context.Songs.Remove(song);
             await _context.SaveChangesAsync();
 
             return Ok();

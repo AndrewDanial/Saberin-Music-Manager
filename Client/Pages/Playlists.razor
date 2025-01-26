@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/Playlists"
 @using music_manager_starter.Shared
 
 @inject HttpClient Http
@@ -19,9 +19,10 @@
         {
             @foreach (var song in songs)
             {
-                <div @onclick="() => HandleRemove(song.Id)" class="glass p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:scale-105 hover:shadow-xl cursor-pointer">
-                    <div>
-                        <h3 class="text-xl font-semibold mb-2">@song.Title</h3>
+                <div class="glass p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:scale-105 hover:shadow-xl cursor-pointer">
+                    <div class="x-icon">
+                        <span class="text-xl font-semibold mb-2">@song.Title</span>
+                        <span>❌</span>
                     </div>
 
                     <p class="text-md">Artist: <span class="font-light">@song.Artist</span></p>
@@ -36,25 +37,6 @@
     </div>
 </div>
 
-@code {
-    private string message;
-
-    private async Task HandleRemove(Guid songID)
-    {
-        Console.WriteLine(songID);
-        var response = await Http.DeleteAsync($"api/songs/{songID}");
-        if (response.IsSuccessStatusCode)
-        {
-            message = "Song added successfully!";
-        }
-        else
-        {
-            message = "Error adding song. Please try again.";
-        }
-        songs = await Http.GetFromJsonAsync<List<Song>>("api/songs");
-    }
-}
-
 <style>
     .bg-pattern {
         background: linear-gradient( rgba(31, 41, 55, 0.7), rgba(31, 41, 55, 0.7) ), url('dalle.webp');
@@ -63,27 +45,31 @@
         font-family: 'Rajdhani', sans-serif;
     }
 
- 
+
 
     .glass {
         background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px); 
-        border-radius: 10px; 
-        position: relative; 
-        overflow: hidden; 
+        backdrop-filter: blur(10px);
+        border-radius: 10px;
+        position: relative;
+        overflow: hidden;
     }
 
-        .glass:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            pointer-events: none; 
-        }
-    
-      
+    .glass:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        pointer-events: none;
+    }
+
+
+    .x-icon {
+        display: flex;
+        justify-content: space-between;
+    }
 </style>
