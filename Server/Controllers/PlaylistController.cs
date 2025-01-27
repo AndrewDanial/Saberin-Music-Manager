@@ -2,54 +2,54 @@
 using Microsoft.EntityFrameworkCore;
 using music_manager_starter.Data;
 using music_manager_starter.Data.Models;
-using System;
 
 namespace music_manager_starter.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PlaylistController : ControllerBase
+    public class PlaylistsController : ControllerBase
     {
         private readonly DataDbContext _context;
 
-        public PlaylistController(DataDbContext context)
+        public PlaylistsController(DataDbContext context)
         {
             _context = context;
         }
 
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Song>>> GetSongs()
+        public async Task<ActionResult<IEnumerable<Playlist>>> GetPlaylists()
         {
-            return await _context.Songs.ToListAsync();
+            return await _context.Playlists.ToListAsync();
         }
 
         [HttpPost]
-        public async Task<ActionResult<Song>> PostSong(Song song)
+        public async Task<ActionResult<Playlist>> PostPlaylists(Playlist playlist)
         {
-            if (song == null)
+            if (playlist == null)
             {
-                return BadRequest("Song cannot be null.");
+                return BadRequest("playlist cannot be null.");
             }
 
 
-            _context.Songs.Add(song);
+            _context.Playlists.Add(playlist);
             await _context.SaveChangesAsync();
 
             return Ok();
         }
 
-        [HttpDelete("{song_id}")]
-        public async Task<ActionResult<Song>> RemoveSong(Guid song_id)
+        [HttpDelete("{playlistId}")]
+        public async Task<ActionResult<Playlist>> RemovePlaylist(Guid playlistId)
         {
-            var song = await _context.Songs.FindAsync(song_id);
-            if (song == null)
+            var playlist = await _context.Playlists.FindAsync(playlistId);
+            Console.WriteLine(playlist);
+            if (playlist == null)
             {
-                return BadRequest("Song cannot be null.");
+                return BadRequest("Playlist cannot be null.");
             }
 
 
-            _context.Songs.Remove(song);
+            _context.Playlists.Remove(playlist);
             await _context.SaveChangesAsync();
 
             return Ok();

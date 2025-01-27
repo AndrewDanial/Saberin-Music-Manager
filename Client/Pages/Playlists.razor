@@ -4,11 +4,12 @@
 @inject HttpClient Http
 
 @code {
-    private List<Song> songs;
+    private List<Playlist> playlists;
     private bool deleting = false;
+    int counter = 0;
     protected override async Task OnInitializedAsync()
     {
-        songs = await Http.GetFromJsonAsync<List<Song>>("api/songs");
+        playlists = await Http.GetFromJsonAsync<List<Playlist>>("api/playlists");
     }
 
     // If deleting, make the playlists shake, otherwise turn it off.
@@ -16,37 +17,53 @@
         deleting = !deleting;
         Console.WriteLine(deleting);
     }
+
+    public async void CreatePlaylist() {
+        Playlist defaultPlaylist = new Playlist();
+        defaultPlaylist.Title = "TestPlaylist" + counter;
+        defaultPlaylist.Id = Guid.NewGuid();
+        defaultPlaylist.Songs = [];
+        Console.WriteLine(defaultPlaylist.Id);
+        counter++;
+        var response = await Http.PostAsJsonAsync("api/playlists", defaultPlaylist);
+        playlists = await Http.GetFromJsonAsync<List<Playlist>>("api/playlists");
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async void DeletePlaylist(Guid playlistId) {
+        if (!deleting) {
+            return;
+        }
+        var response = await Http.DeleteAsync($"api/playlists/{playlistId}");
+        playlists = await Http.GetFromJsonAsync<List<Playlist>>("api/playlists");
+        await InvokeAsync(StateHasChanged);
+    }
 }
 
 <div class="p-0 min-h-screen bg-pattern flex flex-col over">
     <div class="opposite-ends">
         <h2 class="text-3xl font-bold text-white add-margin">Playlists</h2>
         <div>
-            <button class="text-3xl text-white add-margin glass create-button">Create</button>
+            <button @onclick="CreatePlaylist" class="text-3xl text-white add-margin glass create-button">Create</button>
             <button @onclick="SetDeleting" class="text-3xl text-white add-margin glass delete-button">Delete</button>
         </div>
-        
+
     </div>
-  
+
     <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-2">
-        @if (songs != null && songs.Count > 0)
+        @if (playlists != null && playlists.Count > 0)
         {
-            @foreach (var song in songs)
+            @foreach (var playlist in playlists)
             {
-                <div class="glass add-margin p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:shadow-xl cursor-pointer @(deleting ? "play-shake" : "")">
-                    <div class="opposite-ends">
-                        <span class="text-xl font-semibold mb-2">@song.Title</span>
-                        <span>❌</span>
-                    </div>
-
-                    <p class="text-md">Artist: <span class="font-light">@song.Artist</span></p>
-
+                <div @onclick="() => DeletePlaylist(playlist.Id)" class="glass add-margin p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:shadow-xl cursor-pointer @(deleting ? "play-shake" : "")">
+                    <h3 class="text-xl font-semibold mb-2">@playlist.Title</h3>
                 </div>
             }
         }
         else
         {
-            <div class="col-span-1 text-center text-gray-400">No songs found.</div>
+            deleting = false;
+            <div class="col-span-1 text-center text-gray-400">No playlists found.</div>
         }
     </div>
 </div>

@@ -39,10 +39,10 @@
 @code {
     private string message;
 
-    private async Task HandleRemove(Guid songID)
+    private async Task HandleRemove(Guid songId)
     {
-        Console.WriteLine(songID);
-        var response = await Http.DeleteAsync($"api/songs/{songID}");
+        Console.WriteLine(songId);
+        var response = await Http.DeleteAsync($"api/songs/{songId}");
         if (response.IsSuccessStatusCode)
         {
             message = "Song added successfully!";

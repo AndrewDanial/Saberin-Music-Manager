@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using music_manager_starter.Data;
 using music_manager_starter.Data.Models;
-using System;
 
 namespace music_manager_starter.Server.Controllers
 {
@@ -39,9 +38,10 @@ namespace music_manager_starter.Server.Controllers
             return Ok();
         }
 
-        [HttpDelete("{song_id}")]
-        public async Task<ActionResult<Song>> RemoveSong(Guid song_id) {
-            var song = await _context.Songs.FindAsync(song_id);
+        [HttpDelete("{songId}")]
+        public async Task<ActionResult<Song>> RemoveSong(Guid songId)
+        {
+            var song = await _context.Songs.FindAsync(songId);
             if (song == null)
             {
                 return BadRequest("Song cannot be null.");

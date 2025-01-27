@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace music_manager_starter.Data.Models
+﻿namespace music_manager_starter.Data.Models
 {
     public sealed class Song
     {
