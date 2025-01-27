@@ -5,22 +5,36 @@
 
 @code {
     private List<Song> songs;
-
+    private bool deleting = false;
     protected override async Task OnInitializedAsync()
     {
         songs = await Http.GetFromJsonAsync<List<Song>>("api/songs");
     }
+
+    // If deleting, make the playlists shake, otherwise turn it off.
+    public void SetDeleting() {
+        deleting = !deleting;
+        Console.WriteLine(deleting);
+    }
 }
 
-<div class="p-0 min-h-screen bg-pattern flex flex-col items-center justify-center over">
-    <h2 class="text-3xl font-bold text-white mb-8 text-center">Song Library</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+<div class="p-0 min-h-screen bg-pattern flex flex-col over">
+    <div class="opposite-ends">
+        <h2 class="text-3xl font-bold text-white add-margin">Playlists</h2>
+        <div>
+            <button class="text-3xl text-white add-margin glass create-button">Create</button>
+            <button @onclick="SetDeleting" class="text-3xl text-white add-margin glass delete-button">Delete</button>
+        </div>
+        
+    </div>
+  
+    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-2">
         @if (songs != null && songs.Count > 0)
         {
             @foreach (var song in songs)
             {
-                <div class="glass p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:scale-105 hover:shadow-xl cursor-pointer">
-                    <div class="x-icon">
+                <div class="glass add-margin p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:shadow-xl cursor-pointer @(deleting ? "play-shake" : "")">
+                    <div class="opposite-ends">
                         <span class="text-xl font-semibold mb-2">@song.Title</span>
                         <span>❌</span>
                     </div>
@@ -46,7 +60,6 @@
     }
 
 
-
     .glass {
         background: rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(10px);
@@ -67,9 +80,79 @@
         pointer-events: none;
     }
 
-
-    .x-icon {
+    .opposite-ends {
         display: flex;
         justify-content: space-between;
     }
+
+    .add-margin {
+        margin-top: 12px;
+        margin-left: 12px;
+        margin-right: 24px;
+        margin-bottom: 2px;
+    }
+
+    .create-button {
+        background: rgba(0, 255, 0, 0.3);
+        padding: 10px;
+    }
+
+    .delete-button {
+        background: rgba(255, 0, 0, 0.3);
+        padding: 10px;
+    }
+
+    .play-shake {
+        animation: shake 0.5s;
+        animation-iteration-count: infinite;
+    }
+
+
+    @@keyframes shake {
+        0% {
+            transform: translate(0.5px, 0.5px) rotate(0deg);
+        }
+
+        10% {
+            transform: translate(-0.5px, -1.5px) rotate(-0.5deg);
+        }
+
+        20% {
+            transform: translate(-2.5px, 0px) rotate(0.5deg);
+        }
+
+        30% {
+            transform: translate(3px, 2px) rotate(0deg);
+        }
+
+        40% {
+            transform: translate(0.5px, -0.5px) rotate(0.5deg);
+        }
+
+        50% {
+            transform: translate(-0.5px, 0.5px) rotate(-0.5deg);
+        }
+
+        60% {
+            transform: translate(-1.5px, 0.5px) rotate(0deg);
+        }
+
+        70% {
+            transform: translate(1.5px, 0.5px) rotate(-0.5deg);
+        }
+
+        80% {
+            transform: translate(-0.5px, -0.5px) rotate(0.5deg);
+        }
+
+        90% {
+            transform: translate(0.5px, 1.5px) rotate(0deg);
+        }
+
+        100% {
+            transform: translate(0.5px, -1.5px) rotate(-0.5deg);
+        }
+
+    }
+
 </style>
