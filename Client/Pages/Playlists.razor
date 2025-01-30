@@ -6,6 +6,7 @@
 @code {
     private List<Playlist> playlists;
     private bool deleting = false;
+    private bool createModalOpen = false;
     int counter = 0;
     protected override async Task OnInitializedAsync()
     {
@@ -19,13 +20,11 @@
     }
 
     public async void CreatePlaylist() {
-        Playlist defaultPlaylist = new Playlist();
-        defaultPlaylist.Title = "TestPlaylist" + counter;
-        defaultPlaylist.Id = Guid.NewGuid();
-        defaultPlaylist.Songs = [];
-        Console.WriteLine(defaultPlaylist.Id);
-        counter++;
-        var response = await Http.PostAsJsonAsync("api/playlists", defaultPlaylist);
+        createModalOpen = true;
+    }
+
+    public async void AddPlaylist(Playlist newPlaylist) {
+        var response = await Http.PostAsJsonAsync("api/playlists", newPlaylist);
         playlists = await Http.GetFromJsonAsync<List<Playlist>>("api/playlists");
         await InvokeAsync(StateHasChanged);
     }
@@ -38,23 +37,32 @@
         playlists = await Http.GetFromJsonAsync<List<Playlist>>("api/playlists");
         await InvokeAsync(StateHasChanged);
     }
+
+    public void UpdateModalVisibility(bool visiblity) {
+        createModalOpen = visiblity;
+    }
 }
 
-<div class="p-0 min-h-screen bg-pattern flex flex-col over">
+<div class="p-0 min-h-screen bg-pattern flex flex-col over position-relative">
+    
+
     <div class="opposite-ends">
         <h2 class="text-3xl font-bold text-white add-margin">Playlists</h2>
         <div>
             <button @onclick="CreatePlaylist" class="text-3xl text-white add-margin glass create-button">Create</button>
             <button @onclick="SetDeleting" class="text-3xl text-white add-margin glass delete-button">Delete</button>
+            
         </div>
 
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-2">
+       
         @if (playlists != null && playlists.Count > 0)
         {
             @foreach (var playlist in playlists)
             {
+                
                 <div @onclick="() => DeletePlaylist(playlist.Id)" class="glass add-margin p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:shadow-xl cursor-pointer @(deleting ? "play-shake" : "")">
                     <h3 class="text-xl font-semibold mb-2">@playlist.Title</h3>
                 </div>
@@ -66,7 +74,9 @@
             <div class="col-span-1 text-center text-gray-400">No playlists found.</div>
         }
     </div>
+    <PlaylistModal IsVisible="createModalOpen" OnModalChanged="UpdateModalVisibility" OnPlaylistSubmit="AddPlaylist" />
 </div>
+
 
 <style>
     .bg-pattern {

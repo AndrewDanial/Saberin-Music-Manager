@@ -1,0 +1,81 @@
+﻿@using music_manager_starter.Shared
+@inject HttpClient Http
+<div class="playlist-modal @(IsVisible ? "visible" : "invisible")">
+    <div class="bg-gray-800 rounded">
+        <div class="playlist-modal-content">
+            <h1 class="modal-title">Add A Playlist</h1>
+            <EditForm Model="newPlaylist" OnValidSubmit="HandlePlaylistSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-4">
+                    <label class="block text-gray-200 text-base">Title</label>
+                    <InputText @bind-Value="newPlaylist.Title" class="mt-1 block w-full p-2 border rounded  text-black" />
+                </div>
+                <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded">Add Playlist</button>
+                <button @onclick="CloseModal" class="bg-purple-600 text-white px-4 py-2 rounded">Close</button>
+            </EditForm>
+
+
+        </div>
+
+
+    </div>
+
+</div>
+
+@code {
+    private Playlist newPlaylist = new Playlist();
+    private String successMessage = "";
+
+    [Parameter]
+    public bool IsVisible { get; set; } = false;
+    [Parameter]
+    public EventCallback<bool> OnModalChanged { get; set; }
+    [Parameter]
+    public EventCallback<Playlist> OnPlaylistSubmit { get; set; }
+
+    private async Task HandlePlaylistSubmit() {
+        if (newPlaylist.Title == "")
+            return;
+        if (OnPlaylistSubmit.HasDelegate) {
+            await OnPlaylistSubmit.InvokeAsync(newPlaylist);
+        }
+        newPlaylist = new Playlist();
+    }
+
+    private async Task CloseModal()
+    {
+        IsVisible = false;
+        if (OnModalChanged.HasDelegate) {
+
+            await OnModalChanged.InvokeAsync(IsVisible);
+        }
+    }
+}
+
+<style>
+	.playlist-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000; /* Ensure it's above other content */
+	}
+
+    .modal-title {
+        font-size: 24px;
+    }
+
+    .playlist-modal-content {
+        margin: 10px;
+        color: white;
+        font-weight: bold;
+        text-align: left;
+    }
+</style>
