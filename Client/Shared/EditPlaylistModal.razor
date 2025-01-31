@@ -12,7 +12,7 @@
                     <label class="block text-gray-200 text-2xl">Title</label>
                     <InputText @bind-Value="CurrentPlaylist.Title" class="mt-1 block w-full p-2  rounded text-black " />
                 </div>
-                <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded">Add Playlist</button>
+                <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded">Confirm Edit</button>
                 <button @onclick="CloseModal" class="bg-purple-600 text-white px-4 py-2 rounded">Close</button>
             </EditForm>
 
@@ -40,19 +40,14 @@
     private async Task HandlePlaylistSubmit() {
         if (CurrentPlaylist.Title == "")
             return;
+
+        await CloseModal();
+
         if (OnEditPlaylist.HasDelegate)
         {
-            Console.WriteLine(CurrentPlaylist.Id);
-            Console.WriteLine(CurrentPlaylist.Title);
-            Console.WriteLine(CurrentPlaylist.Songs);
             await OnEditPlaylist.InvokeAsync(CurrentPlaylist);
         }
-        IsVisible = false;
-        if (OnModalChanged.HasDelegate)
-        {
 
-            await OnModalChanged.InvokeAsync(IsVisible);
-        }
     }
 
     private async Task CloseModal()
@@ -76,11 +71,11 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 1000; /* Ensure it's above other content */
 	}
 
     .modal-title {
         font-size: 40px;
+        overflow-wrap: break-word;
     }
 
     .modal-background {

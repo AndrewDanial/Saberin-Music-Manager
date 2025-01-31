@@ -4,7 +4,7 @@
 @inject HttpClient Http
 
 @code {
-    private List<Playlist> playlists;
+    private List<Playlist> playlists = [];
     private bool deleting = false;
     private bool createModalOpen = false;
     private bool editModalOpen = false;
@@ -18,7 +18,6 @@
     // If deleting, make the playlists shake, otherwise turn it off.
     public void SetDeleting() {
         deleting = !deleting;
-        Console.WriteLine(deleting);
     }
 
     public void ShowCreatePlaylist() {
@@ -28,7 +27,6 @@
     public void ShowEditPlaylist(Playlist playlist) {
         editModalOpen = true;
         currentPlaylist = playlist;
-        Console.WriteLine(playlist.Id);
     }
 
     public async void AddPlaylist(Playlist newPlaylist) {
@@ -39,9 +37,6 @@
     }
 
     public async void EditPlaylist(Playlist newPlaylist) {
-        Console.WriteLine(newPlaylist.Id);
-        Console.WriteLine(newPlaylist.Title);
-        Console.WriteLine(newPlaylist.Songs);
         var response = await Http.PutAsJsonAsync<Playlist>($"api/playlists/{newPlaylist.Id}", newPlaylist);
         playlists = await Http.GetFromJsonAsync<List<Playlist>>("api/playlists");
         await InvokeAsync(StateHasChanged);
@@ -68,8 +63,6 @@
 }
 
 <div class="p-0 min-h-screen bg-pattern flex flex-col over position-relative">
-    
-
     <div class="opposite-ends">
         <h2 class="text-3xl font-bold text-white add-margin">Playlists</h2>
         <div>
