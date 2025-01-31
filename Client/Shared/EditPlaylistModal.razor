@@ -1,0 +1,97 @@
+﻿@using music_manager_starter.Shared
+@inject HttpClient Http
+<div class="playlist-modal @(IsVisible ? "visible" : "invisible")">
+    <div class="modal-background bg-gray-800 rounded-lg border border-solid border-gray-300 ">
+        <div class="playlist-modal-content">
+            <h1 class="modal-title">Edit @CurrentPlaylist.Title</h1>
+            <EditForm Model="CurrentPlaylist" OnValidSubmit="HandlePlaylistSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-4">
+                    <label class="block text-gray-200 text-2xl">Title</label>
+                    <InputText @bind-Value="CurrentPlaylist.Title" class="mt-1 block w-full p-2  rounded text-black " />
+                </div>
+                <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded">Add Playlist</button>
+                <button @onclick="CloseModal" class="bg-purple-600 text-white px-4 py-2 rounded">Close</button>
+            </EditForm>
+
+
+        </div>
+
+
+    </div>
+
+</div>
+
+@code {
+    private String successMessage = "";
+    private List<Song> songs = [];
+
+    [Parameter]
+    public bool IsVisible { get; set; } = false;
+    [Parameter]
+    public Playlist CurrentPlaylist { get; set; }
+    [Parameter]
+    public EventCallback<bool> OnModalChanged { get; set; }
+    [Parameter]
+    public EventCallback<Playlist> OnEditPlaylist { get; set; }
+
+    private async Task HandlePlaylistSubmit() {
+        if (CurrentPlaylist.Title == "")
+            return;
+        if (OnEditPlaylist.HasDelegate)
+        {
+            Console.WriteLine(CurrentPlaylist.Id);
+            Console.WriteLine(CurrentPlaylist.Title);
+            Console.WriteLine(CurrentPlaylist.Songs);
+            await OnEditPlaylist.InvokeAsync(CurrentPlaylist);
+        }
+        IsVisible = false;
+        if (OnModalChanged.HasDelegate)
+        {
+
+            await OnModalChanged.InvokeAsync(IsVisible);
+        }
+    }
+
+    private async Task CloseModal()
+    {
+        IsVisible = false;
+        if (OnModalChanged.HasDelegate) {
+
+            await OnModalChanged.InvokeAsync(IsVisible);
+        }
+    }
+}
+
+<style>
+	.playlist-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000; /* Ensure it's above other content */
+	}
+
+    .modal-title {
+        font-size: 40px;
+    }
+
+    .modal-background {
+        width: 25%;
+        height: 50%;
+    }
+
+    .playlist-modal-content {
+        margin: 10px;
+        color: white;
+        font-weight: bold;
+        text-align: left;
+    }
+</style>

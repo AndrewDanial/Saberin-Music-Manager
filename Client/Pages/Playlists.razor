@@ -7,6 +7,8 @@
     private List<Playlist> playlists;
     private bool deleting = false;
     private bool createModalOpen = false;
+    private bool editModalOpen = false;
+    private Playlist currentPlaylist = new Playlist();
     int counter = 0;
     protected override async Task OnInitializedAsync()
     {
@@ -19,15 +21,32 @@
         Console.WriteLine(deleting);
     }
 
-    public async void CreatePlaylist() {
+    public void ShowCreatePlaylist() {
         createModalOpen = true;
+    }
+
+    public void ShowEditPlaylist(Playlist playlist) {
+        editModalOpen = true;
+        currentPlaylist = playlist;
+        Console.WriteLine(playlist.Id);
     }
 
     public async void AddPlaylist(Playlist newPlaylist) {
         var response = await Http.PostAsJsonAsync("api/playlists", newPlaylist);
         playlists = await Http.GetFromJsonAsync<List<Playlist>>("api/playlists");
+
         await InvokeAsync(StateHasChanged);
     }
+
+    public async void EditPlaylist(Playlist newPlaylist) {
+        Console.WriteLine(newPlaylist.Id);
+        Console.WriteLine(newPlaylist.Title);
+        Console.WriteLine(newPlaylist.Songs);
+        var response = await Http.PutAsJsonAsync<Playlist>($"api/playlists/{newPlaylist.Id}", newPlaylist);
+        playlists = await Http.GetFromJsonAsync<List<Playlist>>("api/playlists");
+        await InvokeAsync(StateHasChanged);
+    }
+
 
     public async void DeletePlaylist(Guid playlistId) {
         if (!deleting) {
@@ -38,9 +57,14 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    public void UpdateModalVisibility(bool visiblity) {
+    public void UpdateAddModalVisibility(bool visiblity) {
         createModalOpen = visiblity;
     }
+
+    public void UpdateEditModalVisiblity(bool visibility) {
+        editModalOpen = visibility;
+    }
+
 }
 
 <div class="p-0 min-h-screen bg-pattern flex flex-col over position-relative">
@@ -49,13 +73,14 @@
     <div class="opposite-ends">
         <h2 class="text-3xl font-bold text-white add-margin">Playlists</h2>
         <div>
-            <button @onclick="CreatePlaylist" class="text-3xl text-white add-margin glass create-button">Create</button>
+            <button @onclick="ShowCreatePlaylist" class="text-3xl text-white add-margin glass create-button">Create</button>
             <button @onclick="SetDeleting" class="text-3xl text-white add-margin glass delete-button">Delete</button>
             
         </div>
 
     </div>
 
+    @*Container to render all Playlists*@
     <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-2">
        
         @if (playlists != null && playlists.Count > 0)
@@ -64,7 +89,17 @@
             {
                 
                 <div @onclick="() => DeletePlaylist(playlist.Id)" class="glass add-margin p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:shadow-xl cursor-pointer @(deleting ? "play-shake" : "")">
-                    <h3 class="text-xl font-semibold mb-2">@playlist.Title</h3>
+                    <div class="opposite-ends">
+                        @*Playlist Title*@
+                        <h3 class="text-xl font-semibold mb-2">@playlist.Title</h3>
+                        @*Edit Button*@
+                        <button @onclick="() => ShowEditPlaylist(playlist)" class="border-gray-300 border border-solid rounded-lg p-1 hover:bg-purple-900">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" wdith="48px" height="48px" >
+                                <path d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z" />
+                            </svg>
+                        </button>
+                    </div>
+                  
                 </div>
             }
         }
@@ -74,7 +109,8 @@
             <div class="col-span-1 text-center text-gray-400">No playlists found.</div>
         }
     </div>
-    <PlaylistModal IsVisible="createModalOpen" OnModalChanged="UpdateModalVisibility" OnPlaylistSubmit="AddPlaylist" />
+    <AddPlaylistModal IsVisible="createModalOpen" OnModalChanged="UpdateAddModalVisibility" OnAddPlaylist="AddPlaylist" />
+    <EditPlaylistModal IsVisible="editModalOpen" OnModalChanged="UpdateEditModalVisiblity" CurrentPlaylist="currentPlaylist" OnEditPlaylist="EditPlaylist"></EditPlaylistModal>
 </div>
 
 

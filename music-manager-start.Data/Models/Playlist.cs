@@ -3,7 +3,7 @@
     public sealed class Playlist
     {
         public Guid Id { get; set; }
-        public required string Title { get; set; }
-        public required List<Song> Songs { get; set; }
+        public string Title { get; set; }
+        public List<Song>? Songs { get; set; }
     }
 }

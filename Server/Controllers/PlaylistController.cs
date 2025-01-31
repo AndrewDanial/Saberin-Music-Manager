@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using music_manager_starter.Data;
 using music_manager_starter.Data.Models;
-
 namespace music_manager_starter.Server.Controllers
 {
     [Route("api/[controller]")]
@@ -42,7 +41,6 @@ namespace music_manager_starter.Server.Controllers
         public async Task<ActionResult<Playlist>> RemovePlaylist(Guid playlistId)
         {
             var playlist = await _context.Playlists.FindAsync(playlistId);
-            Console.WriteLine(playlist);
             if (playlist == null)
             {
                 return BadRequest("Playlist cannot be null.");
@@ -52,6 +50,23 @@ namespace music_manager_starter.Server.Controllers
             _context.Playlists.Remove(playlist);
             await _context.SaveChangesAsync();
 
+            return Ok();
+        }
+
+        [HttpPut("{playlistId}")]
+        public async Task<ActionResult<Playlist>> ReplacePlaylist(Guid playlistId, [FromBody] Playlist newPlaylist)
+        {
+            Console.WriteLine("In the put handler");
+            var playlist = await _context.Playlists.FindAsync(playlistId);
+            if (playlist == null)
+            {
+                return BadRequest("Playlist cannot be null.");
+            }
+
+            playlist.Title = newPlaylist.Title;
+            playlist.Songs = newPlaylist.Songs;
+
+            await _context.SaveChangesAsync();
             return Ok();
         }
     }

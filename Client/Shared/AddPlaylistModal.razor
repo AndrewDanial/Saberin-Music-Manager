@@ -1,7 +1,7 @@
 ﻿@using music_manager_starter.Shared
 @inject HttpClient Http
 <div class="playlist-modal @(IsVisible ? "visible" : "invisible")">
-    <div class="bg-gray-800 rounded">
+    <div class="modal-background bg-gray-800 rounded-lg border border-solid border-gray-300 ">
         <div class="playlist-modal-content">
             <h1 class="modal-title">Add A Playlist</h1>
             <EditForm Model="newPlaylist" OnValidSubmit="HandlePlaylistSubmit">
@@ -9,8 +9,8 @@
                 <ValidationSummary />
 
                 <div class="mb-4">
-                    <label class="block text-gray-200 text-base">Title</label>
-                    <InputText @bind-Value="newPlaylist.Title" class="mt-1 block w-full p-2 border rounded  text-black" />
+                    <label class="block text-gray-200 text-2xl">Title</label>
+                    <InputText @bind-Value="newPlaylist.Title" class="mt-1 block w-full p-2  rounded text-black " />
                 </div>
                 <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded">Add Playlist</button>
                 <button @onclick="CloseModal" class="bg-purple-600 text-white px-4 py-2 rounded">Close</button>
@@ -27,19 +27,21 @@
 @code {
     private Playlist newPlaylist = new Playlist();
     private String successMessage = "";
+    private List<Song> songs = [];
 
     [Parameter]
     public bool IsVisible { get; set; } = false;
     [Parameter]
     public EventCallback<bool> OnModalChanged { get; set; }
     [Parameter]
-    public EventCallback<Playlist> OnPlaylistSubmit { get; set; }
+    public EventCallback<Playlist> OnAddPlaylist { get; set; }
 
     private async Task HandlePlaylistSubmit() {
         if (newPlaylist.Title == "")
             return;
-        if (OnPlaylistSubmit.HasDelegate) {
-            await OnPlaylistSubmit.InvokeAsync(newPlaylist);
+        if (OnAddPlaylist.HasDelegate)
+        {
+            await OnAddPlaylist.InvokeAsync(newPlaylist);
         }
         newPlaylist = new Playlist();
     }
@@ -69,7 +71,12 @@
 	}
 
     .modal-title {
-        font-size: 24px;
+        font-size: 40px;
+    }
+
+    .modal-background {
+        width: 25%;
+        height: 50%;
     }
 
     .playlist-modal-content {
