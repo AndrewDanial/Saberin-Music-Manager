@@ -6,9 +6,13 @@
 @code {
     private List<Song> songs;
 
+    [CascadingParameter]
+    public string? searchValue { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         songs = await Http.GetFromJsonAsync<List<Song>>("api/songs");
+        searchValue = "";
     }
 }
 
@@ -19,14 +23,18 @@
         {
             @foreach (var song in songs)
             {
-                <div @onclick="() => HandleRemove(song.Id)" class="glass p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:scale-105 hover:shadow-xl cursor-pointer">
-                    <div>
-                        <h3 class="text-xl font-semibold mb-2">@song.Title</h3>
+                @if (searchValue == "" || song.Title.StartsWith(searchValue))
+                {
+                    <div @onclick="() => HandleRemove(song.Id)" class="glass p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:scale-105 hover:shadow-xl cursor-pointer">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-2">@song.Title</h3>
+                        </div>
+
+                        <p class="text-md">Artist: <span class="font-light">@song.Artist</span></p>
+
                     </div>
-
-                    <p class="text-md">Artist: <span class="font-light">@song.Artist</span></p>
-
-                </div>
+                }
+                
             }
         }
         else
@@ -37,20 +45,12 @@
 </div>
 
 @code {
-    private string message;
 
     private async Task HandleRemove(Guid songId)
     {
         Console.WriteLine(songId);
         var response = await Http.DeleteAsync($"api/songs/{songId}");
-        if (response.IsSuccessStatusCode)
-        {
-            message = "Song added successfully!";
-        }
-        else
-        {
-            message = "Error adding song. Please try again.";
-        }
+      
         songs = await Http.GetFromJsonAsync<List<Song>>("api/songs");
     }
 }
