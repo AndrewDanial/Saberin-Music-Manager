@@ -1,5 +1,5 @@
 ﻿@inherits LayoutComponentBase
-
+@using music_manager_starter.Shared;
 
 <div class="flex h-screen">
     <NavMenu />
@@ -7,33 +7,41 @@
         <div class="top-bar px-6 py-4 bg-gray-900 text-white flex items-center justify-between">
             <h1 class="text-xl font-semibold">Music</h1>
             <div class="relative">
+
+                <label class="text-xl font-semibold" for="searchFilters">Filter by: </label>
+                <InputSelect class="text-gray-400 bg-gray-700 text-white px-2 py-2 rounded-full focus:outline-none" @bind-Value="searchType">
+                    @foreach (var filter in Enum.GetValues(typeof(SearchType)))
+                    {
+                        <option @onclick="ClearFilters" value="@filter">@filter</option>
+                    }
+                </InputSelect>
                 <input type="text" @onkeydown="HandleKeyDown" @oninput="e => inputValue = e.Value.ToString()" @bind-value=inputValue placeholder="Search..." class="bg-gray-700 text-white px-4 py-2 rounded-full focus:outline-none">
                 <span class="absolute right-3 top-3 text-gray-400">
                     <i class="fas fa-search"></i>
                 </span>
             </div>
         </div>
-     
+
 
         <div class="p-0 overflow-y-auto flex-1">
             <CascadingValue Value="@searchValue">
-                @Body
+                <CascadingValue Value="@searchType">
+                    @Body
+                </CascadingValue>
             </CascadingValue>
         </div>
     </div>
 </div>
 
 @code {
-    enum SearchType {
-        Title,
-        Artist,
-        Album
-    }
-
     private string searchValue = "";
     private string inputValue = "";
     private SearchType searchType = SearchType.Title;
 
+    private void ClearFilters() {
+        searchValue = "";
+        inputValue = string.Empty;
+    }
 
     private void HandleKeyDown(KeyboardEventArgs e)
     {
