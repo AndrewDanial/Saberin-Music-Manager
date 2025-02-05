@@ -1,7 +1,7 @@
 ﻿@using music_manager_starter.Shared
 @inject HttpClient Http
 <div class="playlist-modal @(IsVisible ? "visible" : "invisible")">
-    <div class="modal-background bg-gray-800 rounded-lg border border-solid border-gray-300 ">
+    <div class="modal-background bg-gray-800 rounded-lg border border-solid border-gray-300 relative">
         <div class="playlist-modal-content">
             <h1 class="modal-title">Edit @CurrentPlaylist.Title</h1>
             <EditForm Model="CurrentPlaylist" OnValidSubmit="HandlePlaylistSubmit">
@@ -12,8 +12,11 @@
                     <label class="block text-gray-200 text-2xl">Title</label>
                     <InputText @bind-Value="CurrentPlaylist.Title" class="mt-1 block w-full p-2  rounded text-black " />
                 </div>
-                <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded">Confirm Edit</button>
-                <button @onclick="CloseModal" class="bg-purple-600 text-white px-4 py-2 rounded">Close</button>
+
+                <div class="modal-button">
+                    <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded">Confirm Edit</button>
+                    <button @onclick="CloseModal" class="bg-purple-600 text-white px-4 py-2 rounded">Close</button>
+                </div>
             </EditForm>
 
 
@@ -88,5 +91,15 @@
         color: white;
         font-weight: bold;
         text-align: left;
+    }
+
+    .modal-button {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        display: inline-block;
+        margin-left: -10px;
+        margin-right: 4px;
+        margin-bottom: 4px;
     }
 </style>

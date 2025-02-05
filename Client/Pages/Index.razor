@@ -5,6 +5,8 @@
 
 @code {
     private List<Song> songs;
+    private Song selectedSong;
+    private bool songDetailsVisible = false;
 
     [CascadingParameter]
     public string? searchValue { get; set; }
@@ -16,6 +18,25 @@
         songs = await Http.GetFromJsonAsync<List<Song>>("api/songs");
         searchValue = "";
     }
+
+    private async Task HandleRemove(Guid songId)
+    {
+        Console.WriteLine(songId);
+        var response = await Http.DeleteAsync($"api/songs/{songId}");
+
+        songs = await Http.GetFromJsonAsync<List<Song>>("api/songs");
+    }
+
+    private void ShowDetails(Song song)
+    {
+        songDetailsVisible = true;
+        selectedSong = song;
+    }
+
+    private void CloseModal() {
+        songDetailsVisible = false;
+    }
+
 }
 
 <div class="p-0 min-h-screen bg-pattern flex flex-col items-center justify-center ">
@@ -43,7 +64,7 @@
                     }
                 }
               
-                <div @onclick="() => HandleRemove(song.Id)" class="glass p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:scale-105 hover:shadow-xl cursor-pointer">
+                <div @onclick="() => ShowDetails(song)" class="glass p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:scale-105 hover:shadow-xl cursor-pointer">
                     <h3 class="text-xl font-semibold mb-2">@song.Title</h3>
                     <p class="text-md">Artist: <span class="font-light">@song.Artist</span></p>
                 </div>
@@ -55,18 +76,8 @@
             <div class="col-span-1 text-center text-gray-400">No songs found.</div>
         }
     </div>
+    <SongDetails IsVisible="songDetailsVisible" Song="selectedSong" OnModalClosed="CloseModal"></SongDetails>
 </div>
-
-@code {
-
-    private async Task HandleRemove(Guid songId)
-    {
-        Console.WriteLine(songId);
-        var response = await Http.DeleteAsync($"api/songs/{songId}");
-      
-        songs = await Http.GetFromJsonAsync<List<Song>>("api/songs");
-    }
-}
 
 <style>
     .bg-pattern {

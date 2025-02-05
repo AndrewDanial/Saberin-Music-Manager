@@ -1,0 +1,81 @@
+﻿@using music_manager_starter.Shared
+@inject HttpClient Http
+<div class="playlist-modal @(IsVisible ? "visible" : "invisible")">
+    <div class="modal-background bg-gray-800 rounded-lg border border-solid border-gray-300 relative">
+        <div class="playlist-modal-content">
+            <p class="text-xl modal-title underline">@Song.Title's Details</p>
+            <h3 class="detail"><span class="underline">Title:</span> @Song.Title</h3>
+            <h3 class="detail"><span class="underline">Artist: </span> @Song.Artist</h3>
+            <h3 class="detail"><span class="underline">Album:</span> @Song.Album</h3>
+            <h3 class="detail"><span class="underline">Genre:</span> @Song.Genre</h3>
+        </div>
+
+            <button @onclick="CloseModal" class="bg-purple-600 text-white px-4 py-2 rounded close-button">Close</button>
+
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public Song? Song { get; set; }
+    [Parameter]
+    public bool IsVisible { get; set; } = false;
+    [Parameter]
+    public EventCallback<bool> OnModalClosed { get; set; }
+
+    private async void CloseModal() {
+        IsVisible = false;
+        if (OnModalClosed.HasDelegate) {
+            await OnModalClosed.InvokeAsync(IsVisible);
+        }
+    }
+
+}
+
+<style>
+    .playlist-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000; /* Ensure it's above other content */
+    }
+
+    .modal-title {
+        font-size: 40px;
+    }
+
+    .modal-background {
+        width: 25%;
+        height: 50%;
+    }
+
+    .playlist-modal-content {
+        margin: 10px;
+        color: white;
+        /* font-weight: bold; */
+        text-align: left;
+    }
+    
+    .detail {
+        margin-top: 24px;
+    }
+
+    .underline {
+        text-decoration-line: underline;
+    }
+    
+    .close-button {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+</style>
