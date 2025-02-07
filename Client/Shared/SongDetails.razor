@@ -2,12 +2,16 @@
 @inject HttpClient Http
 <div class="playlist-modal @(IsVisible ? "visible" : "invisible")">
     <div class="modal-background bg-gray-800 rounded-lg border border-solid border-gray-300 relative">
+        <p class="text-xl modal-title underline">@Song.Title's Details</p>
         <div class="playlist-modal-content">
-            <p class="text-xl modal-title underline">@Song.Title's Details</p>
-            <h3 class="detail"><span class="underline">Title:</span> @Song.Title</h3>
-            <h3 class="detail"><span class="underline">Artist: </span> @Song.Artist</h3>
-            <h3 class="detail"><span class="underline">Album:</span> @Song.Album</h3>
-            <h3 class="detail"><span class="underline">Genre:</span> @Song.Genre</h3>
+            <img src="https://placehold.co/100x100" />
+            <div class="detail-text">
+                <h3 class="detail"><span class="underline">Artist: </span> @Song.Artist</h3>
+                <h3 class="detail"><span class="underline">Album:</span> @Song.Album</h3>
+                <h3 class="detail"><span class="underline">Genre:</span> @Song.Genre</h3>
+                <h3 class="detail"><span class="underline">Release Date:</span> @RandomDay()</h3>
+            </div>
+            
         </div>
 
             <button @onclick="CloseModal" class="bg-purple-600 text-white px-4 py-2 rounded close-button">Close</button>
@@ -32,6 +36,17 @@
         }
     }
 
+    private Random gen = new Random();
+
+    // Generate a random release date for now
+    // TODO: Store release date in song model
+    private DateOnly RandomDay()
+    {
+        DateTime start = new DateTime(1995, 1, 1);
+        int range = (DateTime.Today - start).Days;
+        DateTime currentDate = start.AddDays(gen.Next(range));
+        return DateOnly.FromDateTime(currentDate);
+    }
 }
 
 <style>
@@ -49,7 +64,9 @@
     }
 
     .modal-title {
-        font-size: 40px;
+        font-size: 32px;
+        color: white;
+        margin: 12px;
     }
 
     .modal-background {
@@ -58,18 +75,20 @@
     }
 
     .playlist-modal-content {
-        margin: 10px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin: 12px;
         color: white;
-        /* font-weight: bold; */
-        text-align: left;
     }
     
     .detail {
-        margin-top: 24px;
+        margin-top: 6px;
+        margin-left: 12px;
     }
 
     .underline {
-        text-decoration-line: underline;
+        font-weight: bold;
     }
     
     .close-button {
