@@ -2,6 +2,7 @@
 @using music_manager_starter.Shared
 
 @inject HttpClient Http
+@using Microsoft.AspNetCore.Components.Web
 
 @code {
     private List<Song> songs;
@@ -21,7 +22,6 @@
 
     private async Task HandleRemove(Guid songId)
     {
-        Console.WriteLine(songId);
         var response = await Http.DeleteAsync($"api/songs/{songId}");
 
         songs = await Http.GetFromJsonAsync<List<Song>>("api/songs");
@@ -65,7 +65,16 @@
                 }
               
                     <div @onclick="() => ShowDetails(song)" class="glass p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:scale-105 hover:shadow-xl cursor-pointer">
-                        <h3 class="text-xl font-semibold mb-2">@song.Title</h3>
+                        <div class="opposite-ends">
+                            @* Song Title *@
+                            <h3 class="text-xl font-semibold mb-2">@song.Title</h3>
+                            @* Delete Button *@
+                            <button @onclick:stopPropagation="true" @onclick="() => HandleRemove(song.Id)" class="text-red-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="32px" height="32px"><path fill="#ec0000" d="M376.6 84.5c11.3-13.6 9.5-33.8-4.1-45.1s-33.8-9.5-45.1 4.1L192 206 56.6 43.5C45.3 29.9 25.1 28.1 11.5 39.4S-3.9 70.9 7.4 84.5L150.3 256 7.4 427.5c-11.3 13.6-9.5 33.8 4.1 45.1s33.8 9.5 45.1-4.1L192 306 327.4 468.5c11.3 13.6 31.5 15.4 45.1 4.1s15.4-31.5 4.1-45.1L233.7 256 376.6 84.5z" />
+</svg>
+                            </button>
+                            
+                        </div>
                         <p class="text-md">Artist: <span class="font-light">@song.Artist</span></p>
                     </div>
                 
@@ -96,6 +105,7 @@
         border-radius: 10px; 
         position: relative; 
         overflow: hidden; 
+        min-width: 200px;
     }
 
     .glass:before {
@@ -108,6 +118,11 @@
         border: 2px solid rgba(255, 255, 255, 0.2);
         border-radius: 10px;
         pointer-events: none; 
+    }
+
+    .opposite-ends {
+        display: flex;
+        justify-content: space-between;
     }
     
       
