@@ -2,7 +2,7 @@
 @inject HttpClient Http
 <div class="playlist-modal @(IsVisible ? "visible" : "invisible")">
     <div class="modal-background bg-gray-800 rounded-lg border border-solid border-gray-300 relative">
-        <div class="playlist-modal-content">
+        <div class="playlist-modal-content ">
             <h1 class="modal-title">Edit @CurrentPlaylist.Title</h1>
             <EditForm Model="CurrentPlaylist" OnValidSubmit="HandlePlaylistSubmit">
                 <DataAnnotationsValidator />
@@ -13,11 +13,37 @@
                     <InputText @bind-Value="CurrentPlaylist.Title" class="mt-1 block w-full p-2  rounded text-black " />
                 </div>
 
+                <p class="detail text-white font-bold">Remove songs from this playlist: </p>
+                <div class="overflow">
+                    @if (CurrentPlaylist.Songs != null)
+                    {
+                        @foreach (var song in CurrentPlaylist.Songs)
+                        {
+                            <div @onclick="() => RemoveSong(song)" class="glass add-margin p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:shadow-xl cursor-pointer ">
+                                <div class="opposite-ends">
+                                    <h3 class="text-xl font-semibold mb-2">@song.Title</h3>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="32px" height="32px">
+                                        <path fill="#ec0000" d="M376.6 84.5c11.3-13.6 9.5-33.8-4.1-45.1s-33.8-9.5-45.1 4.1L192 206 56.6 43.5C45.3 29.9 25.1 28.1 11.5 39.4S-3.9 70.9 7.4 84.5L150.3 256 7.4 427.5c-11.3 13.6-9.5 33.8 4.1 45.1s33.8 9.5 45.1-4.1L192 306 327.4 468.5c11.3 13.6 31.5 15.4 45.1 4.1s15.4-31.5 4.1-45.1L233.7 256 376.6 84.5z" />
+                                    </svg>
+
+                                </div>
+
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="detail text-white">No songs found</p>
+                    }
+                </div>
+
                 <div class="modal-button">
-                    <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded">Confirm Edit</button>
+                    <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded ">Confirm Edit</button>
                     <button @onclick="CloseModal" class="bg-purple-600 text-white px-4 py-2 rounded">Close</button>
                 </div>
             </EditForm>
+
+
 
 
         </div>
@@ -60,6 +86,12 @@
             await OnModalChanged.InvokeAsync(IsVisible);
         }
     }
+
+    private async void RemoveSong(Song song) {
+        var songToRemove = CurrentPlaylist.Songs.Single(s => s.Id == song.Id);
+        CurrentPlaylist.Songs.Remove(songToRemove);
+        var response = await Http.PutAsJsonAsync<Playlist>($"api/playlists/{CurrentPlaylist.Id}", CurrentPlaylist);
+    }
 }
 
 <style>
@@ -100,5 +132,11 @@
         margin-left: -10px;
         margin-right: 4px;
         margin-bottom: 4px;
+    }
+
+    .overflow {
+        overflow-x: hidden;
+        overflow-y: auto;
+        max-height: 200px;
     }
 </style>

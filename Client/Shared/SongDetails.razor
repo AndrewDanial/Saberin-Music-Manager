@@ -91,9 +91,6 @@
         }
 
         var response = await Http.PutAsJsonAsync<Playlist>($"api/playlists/{playlist.Id}", playlist);
-        Console.WriteLine(response);
-        var p = await Http.GetFromJsonAsync<List<Playlist>>("api/playlists");
-        Console.WriteLine(p[0].Songs);
     }
 
     private Random gen = new Random();
