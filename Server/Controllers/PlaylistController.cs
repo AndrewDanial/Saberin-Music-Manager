@@ -19,7 +19,14 @@ namespace music_manager_starter.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Playlist>>> GetPlaylists()
         {
-            return await _context.Playlists.ToListAsync();
+            var playlists = await _context.Playlists
+                .Include(p => p.Songs).ToListAsync();
+            playlists = playlists.OrderBy(p => p.CreatedAt).ToList();
+            foreach (var p in playlists)
+            {
+                Console.WriteLine(p.CreatedAt);
+            }
+            return playlists;
         }
 
         [HttpPost]
@@ -56,18 +63,34 @@ namespace music_manager_starter.Server.Controllers
         [HttpPut("{playlistId}")]
         public async Task<ActionResult<Playlist>> ReplacePlaylist(Guid playlistId, [FromBody] Playlist newPlaylist)
         {
-            Console.WriteLine("In the put handler");
-            var playlist = await _context.Playlists.FindAsync(playlistId);
+            var playlist = await _context.Playlists.Include(p => p.Songs).FirstOrDefaultAsync(p => p.Id == playlistId);
             if (playlist == null)
             {
                 return BadRequest("Playlist cannot be null.");
             }
 
             playlist.Title = newPlaylist.Title;
-            playlist.Songs = newPlaylist.Songs;
+
+            if (playlist.Songs != null)
+                playlist.Songs.Clear();
+            else
+                playlist.Songs = [];
+
+            if (newPlaylist.Songs != null)
+            {
+                foreach (var song in newPlaylist.Songs)
+                {
+                    var existingSong = await _context.Songs.FindAsync(song.Id);
+                    if (existingSong != null)
+                    {
+                        playlist.Songs.Add(existingSong);
+                    }
+                }
+            }
 
             await _context.SaveChangesAsync();
-            return Ok();
+            return BadRequest(playlist);
+            return Ok(playlist);
         }
     }
 }

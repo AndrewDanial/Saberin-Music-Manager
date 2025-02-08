@@ -6,7 +6,7 @@
 
 @code {
     private List<Song> songs;
-    private Song selectedSong;
+    private Song selectedSong = new Song();
     private bool songDetailsVisible = false;
 
     [CascadingParameter]
@@ -69,9 +69,10 @@
                             @* Song Title *@
                             <h3 class="text-xl font-semibold mb-2">@song.Title</h3>
                             @* Delete Button *@
-                            <button @onclick:stopPropagation="true" @onclick="() => HandleRemove(song.Id)" class="text-red-50">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="32px" height="32px"><path fill="#ec0000" d="M376.6 84.5c11.3-13.6 9.5-33.8-4.1-45.1s-33.8-9.5-45.1 4.1L192 206 56.6 43.5C45.3 29.9 25.1 28.1 11.5 39.4S-3.9 70.9 7.4 84.5L150.3 256 7.4 427.5c-11.3 13.6-9.5 33.8 4.1 45.1s33.8 9.5 45.1-4.1L192 306 327.4 468.5c11.3 13.6 31.5 15.4 45.1 4.1s15.4-31.5 4.1-45.1L233.7 256 376.6 84.5z" />
-</svg>
+                        <button @onclick:stopPropagation="true" @onclick="() => HandleRemove(song.Id)" class="text-red-50 border-gray-300 border border-solid rounded-lg p-1 hover:bg-purple-900">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="32px" height="32px">
+                                    <path fill="#ec0000" d="M376.6 84.5c11.3-13.6 9.5-33.8-4.1-45.1s-33.8-9.5-45.1 4.1L192 206 56.6 43.5C45.3 29.9 25.1 28.1 11.5 39.4S-3.9 70.9 7.4 84.5L150.3 256 7.4 427.5c-11.3 13.6-9.5 33.8 4.1 45.1s33.8 9.5 45.1-4.1L192 306 327.4 468.5c11.3 13.6 31.5 15.4 45.1 4.1s15.4-31.5 4.1-45.1L233.7 256 376.6 84.5z" />
+                                </svg>
                             </button>
                             
                         </div>
@@ -83,11 +84,10 @@
         }
        
     </div>
-    @if (songs == null || songs.Count == 0) {
-    <div class="relative col-span-1 text-center text-gray-400">No songs found.</div>
-
-    }
     <SongDetails Song="selectedSong" IsVisible="songDetailsVisible" OnModalClosed="CloseModal"></SongDetails>
+    @if (songs == null || songs.Count == 0) {
+        <div class="relative col-span-1 text-center text-gray-400">No songs found.</div>
+    }
 </div>
 
 <style>

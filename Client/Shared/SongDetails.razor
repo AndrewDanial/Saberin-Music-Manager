@@ -1,20 +1,52 @@
 ﻿@using music_manager_starter.Shared
 @inject HttpClient Http
-<div class="playlist-modal @(IsVisible ? "visible" : "invisible")">
+
+<div class="playlist-modal @(IsVisible ? "visible" : "invisible") ">
     <div class="modal-background bg-gray-800 rounded-lg border border-solid border-gray-300 relative">
         <p class="text-xl modal-title underline">@Song.Title's Details</p>
         <div class="playlist-modal-content">
             <img src="https://placehold.co/100x100" />
-            <div class="detail-text">
+            <div>
                 <h3 class="detail"><span class="underline">Artist: </span> @Song.Artist</h3>
                 <h3 class="detail"><span class="underline">Album:</span> @Song.Album</h3>
                 <h3 class="detail"><span class="underline">Genre:</span> @Song.Genre</h3>
                 <h3 class="detail"><span class="underline">Release Date:</span> @RandomDay()</h3>
             </div>
-            
         </div>
 
-            <button @onclick="CloseModal" class="bg-purple-600 text-white px-4 py-2 rounded close-button">Close</button>
+        <p class="detail text-white font-bold">Add this song to a playlist: </p>
+        <div class="overflow">
+            @if (playlists != null && playlists.Count != 0) {
+                @foreach (var playlist in playlists) {
+                    @if (playlist.Songs != null) {
+                        @foreach (var song in playlist.Songs) {
+                            @if (song.Id == Song.Id) {
+                                songAlreadyExists = true;
+                            }
+                        }
+                    }
+
+                    @if (songAlreadyExists) {
+                        songAlreadyExists = false;
+                        continue;
+                    }
+                    <div @onclick="() => AddToPlaylist(playlist)" class="glass add-margin p-6 border border-gray-300 rounded-lg text-white transition-transform transform hover:shadow-xl cursor-pointer ">
+                        <div class="opposite-ends">
+                            <h3 class="text-xl font-semibold mb-2">@playlist.Title</h3>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="32px" height="32px">
+                                <path fill="#00FF00" d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z" />
+                            </svg>
+
+                        </div>
+
+                    </div>
+                } 
+            } else {
+                <p class="detail text-white">No playlists found</p>
+            }
+        </div>
+
+        <button @onclick="CloseModal" class="bg-purple-600 text-white px-4 py-2 rounded close-button position-absolute">Close</button>
 
     </div>
 
@@ -29,11 +61,39 @@
     [Parameter]
     public EventCallback<bool> OnModalClosed { get; set; }
 
+    private List<Playlist> playlists = [];
+    bool songAlreadyExists = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        playlists = await Http.GetFromJsonAsync<List<Playlist>>("api/playlists");
+    }
+
     private async void CloseModal() {
         IsVisible = false;
         if (OnModalClosed.HasDelegate) {
             await OnModalClosed.InvokeAsync(IsVisible);
         }
+    }
+
+    private async void AddToPlaylist(Playlist playlist) {
+        if (playlist.Songs != null) {
+            foreach (var song in playlist.Songs) {
+                if (song.Id == Song.Id)
+                {
+                    return;
+                }
+            }
+            playlist.Songs.Add(Song);
+        }
+        else {
+            playlist.Songs = new List<Song>() { Song };
+        }
+
+        var response = await Http.PutAsJsonAsync<Playlist>($"api/playlists/{playlist.Id}", playlist);
+        Console.WriteLine(response);
+        var p = await Http.GetFromJsonAsync<List<Playlist>>("api/playlists");
+        Console.WriteLine(p[0].Songs);
     }
 
     private Random gen = new Random();
@@ -96,5 +156,18 @@
         left: 0;
         right: 0;
         bottom: 0;
+    }
+
+     .add-margin {
+        margin-top: 12px;
+        margin-left: 12px;
+        margin-right: 24px;
+        margin-bottom: 2px;
+    }
+
+    .overflow {
+        overflow-x: hidden;
+        overflow-y: auto;
+        max-height: 55%;
     }
 </style>

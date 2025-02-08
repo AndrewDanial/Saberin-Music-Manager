@@ -97,7 +97,21 @@
                                 </svg>
                             </button>
                         </div>
+                        @if (playlist.Songs != null) {
+                            @if (playlist.Songs.Count == 1)
+                            {
+                                Console.WriteLine("one song branch");
+                                <p>Contains @playlist.Songs.Count song</p>
+                            } else {
 
+                                Console.WriteLine("many songs branch");
+                                <p>Contains @playlist.Songs.Count songs</p>
+                            }
+                        } else {
+
+                            Console.WriteLine("0 songs branch");
+                            <p>Contains 0 songs</p>
+                        }
                     </div>
                 }
                 

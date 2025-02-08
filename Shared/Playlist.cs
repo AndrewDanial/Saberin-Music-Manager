@@ -6,11 +6,14 @@
         public string Title { get; set; }
         public List<Song> Songs { get; set; }
 
+        public DateTime CreatedAt { get; set; }
+
         public Playlist()
         {
             Id = Guid.NewGuid();
             Title = "";
             Songs = [];
+            CreatedAt = DateTime.UtcNow;
         }
     }
 }
